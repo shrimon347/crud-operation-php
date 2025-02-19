@@ -1,0 +1,45 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: on-failure
+    entrypoint: php artisan serve --host=0.0.0.0 --port=8000
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=laravel
+      - DB_USERNAME=root
+      - DB_PASSWORD=
+      - OCTANE_SERVER=frankenphp
+    ports:
+      - "8000:8000"
+    stdin_open: true
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    networks:
+      - laravel-network
+
+  db:
+    image: mysql:latest
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_DATABASE=laravel
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - laravel-network
+
+
+networks:
+  laravel-network:
+    driver: bridge
