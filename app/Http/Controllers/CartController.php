@@ -117,9 +117,12 @@ class CartController extends Controller
             unset($cart[$request->product_id]);
         }
         
-        session()->put('cart', $cart);
-        session()->forget('cart_totals');
-        session()->forget('discount');
+        if (empty($cart)) {
+        // If cart is empty, remove session values for totals and discounts
+        session()->forget(['cart', 'cart_totals', 'discount']);
+        } else {
+            session()->put('cart', $cart);
+        }
         return redirect()->back()->with('success', 'Product removed successfully!');
     }
 
