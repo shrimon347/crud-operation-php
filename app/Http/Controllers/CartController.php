@@ -112,12 +112,14 @@ class CartController extends Controller
     public function removeItem(Request $request)
     {
         $cart = session()->get('cart', []);
-        
+
         if(isset($cart[$request->product_id])) {
             unset($cart[$request->product_id]);
         }
         
         session()->put('cart', $cart);
+        session()->forget('cart_totals');
+        session()->forget('discount');
         return redirect()->back()->with('success', 'Product removed successfully!');
     }
 
